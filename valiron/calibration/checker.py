@@ -10,13 +10,22 @@ import numpy as np
 
 @dataclass
 class CalibrationResult:
-    expected_calibration_error: float
-    max_calibration_error: float
+    ece: float
+    mce: float
     well_calibrated: bool
 
 
 def check_calibration(y_true: Any, y_prob: Any, n_bins: int = 10) -> CalibrationResult:
-    """Compute ECE and MCE for probability calibration assessment."""
+    """Compute ECE and MCE for probability calibration assessment.
+
+    Args:
+        y_true: Ground-truth binary labels.
+        y_prob: Predicted probabilities for the positive class.
+        n_bins: Number of equal-width bins (default 10).
+
+    Returns:
+        CalibrationResult with ece, mce, and well_calibrated flag (ece < 0.10).
+    """
     y_true = np.asarray(y_true, dtype=float)
     y_prob = np.asarray(y_prob, dtype=float)
     bins = np.linspace(0.0, 1.0, n_bins + 1)
@@ -33,7 +42,7 @@ def check_calibration(y_true: Any, y_prob: Any, n_bins: int = 10) -> Calibration
         mce = max(mce, gap)
 
     return CalibrationResult(
-        expected_calibration_error=round(ece, 4),
-        max_calibration_error=round(mce, 4),
+        ece=round(ece, 4),
+        mce=round(mce, 4),
         well_calibrated=ece < 0.1,
     )

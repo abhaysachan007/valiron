@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CDSCO MDSW Compliance Report — {{ result.use_case }}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      color: #1a1a2e;
+      background: #f8f9fa;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .report-header {
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-top: 4px solid #0d6efd;
+      border-radius: 6px;
+      padding: 28px 32px;
+      margin-bottom: 24px;
+    }
+    .report-header h1 { margin: 0 0 4px; font-size: 1.5em; color: #0d6efd; }
+    .report-header .subtitle { color: #6c757d; font-size: 0.95em; margin-bottom: 16px; }
+    .meta-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .meta-item label { font-weight: 600; color: #495057; display: block; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.05em; }
+    .badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9em;
+      letter-spacing: 0.03em;
+    }
+    .badge-compliant { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+    .badge-non-compliant { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .score-bar-wrap { margin: 8px 0 0; }
+    .score-bar { height: 10px; background: #e9ecef; border-radius: 5px; overflow: hidden; }
+    .score-fill { height: 100%; border-radius: 5px; background: {{ '#10b981' if result.compliant else '#ef4444' }}; width: {{ (result.score * 100) | round(1) }}%; }
+    .score-pct { font-size: 1.3em; font-weight: 700; margin-top: 4px; color: {{ '#065f46' if result.compliant else '#991b1b' }}; }
+
+    section {
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+    }
+    section h2 {
+      margin: 0 0 2px;
+      font-size: 1.1em;
+      color: #0d6efd;
+      border-bottom: 1px solid #e9ecef;
+      padding-bottom: 8px;
+    }
+    .section-ref { font-size: 0.78em; color: #6c757d; margin: 0 0 14px; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.92em; }
+    th { background: #f1f5f9; font-weight: 600; color: #374151; padding: 9px 12px; text-align: left; border-bottom: 2px solid #dee2e6; }
+    td { padding: 8px 12px; border-bottom: 1px solid #f1f3f4; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+
+    .check-pass { color: #065f46; font-weight: 500; }
+    .check-fail { color: #991b1b; font-weight: 700; }
+    .check-warn { color: #92400e; }
+
+    .metric-value { font-weight: 700; font-size: 1.05em; }
+    .metric-ci { font-size: 0.8em; color: #6c757d; }
+
+    .subgroup-feature-label { font-weight: 700; color: #0d6efd; margin: 16px 0 4px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .cal-row { display: flex; gap: 16px; margin-top: 12px; }
+    .cal-card { flex: 1; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 14px 18px; }
+    .cal-card .val { font-size: 1.5em; font-weight: 700; color: #0d6efd; }
+    .cal-card .lbl { font-size: 0.8em; color: #6c757d; margin-top: 2px; }
+
+    footer {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 0.78em;
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid #e9ecef;
+    }
+  </style>
+</head>
+<body>
+
+<div class="report-header">
+  <h1>CDSCO MDSW Compliance Report</h1>
+  <p class="subtitle">Medical Device Software — Regulatory Validation Report (Valiron)</p>
+  <div class="meta-grid">
+    <div class="meta-item">
+      <label>Regulation</label>
+      <span>CDSCO Medical Devices &amp; MDSW Guidelines 2022</span>
+    </div>
+    <div class="meta-item">
+      <label>Use Case</label>
+      <span>{{ result.use_case }}</span>
+    </div>
+    <div class="meta-item">
+      <label>Compliance Status</label>
+      <span class="badge {{ 'badge-compliant' if result.compliant else 'badge-non-compliant' }}">
+        {{ 'COMPLIANT' if result.compliant else 'NON-COMPLIANT' }}
+      </span>
+    </div>
+    <div class="meta-item">
+      <label>Overall Score</label>
+      <div class="score-bar-wrap">
+        <div class="score-bar"><div class="score-fill"></div></div>
+        <div class="score-pct">{{ (result.score * 100) | round(1) }}%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- § 5 Performance Evaluation -->
+<section>
+  <h2>Performance Evaluation</h2>
+  <p class="section-ref">CDSCO MDSW Guidance § 5 — Performance Evaluation Requirements</p>
+  {% if metrics %}
+  <table>
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th>Value</th>
+        <th>95% Confidence Interval</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Accuracy</td>
+        <td class="metric-value">{{ metrics.accuracy }}</td>
+        <td class="metric-ci">{% if metrics.accuracy_ci %}{{ metrics.accuracy_ci[0] }} – {{ metrics.accuracy_ci[1] }}{% else %}—{% endif %}</td>
+      </tr>
+      <tr>
+        <td>F1 Score</td>
+        <td class="metric-value">{{ metrics.f1 }}</td>
+        <td class="metric-ci">{% if metrics.f1_ci %}{{ metrics.f1_ci[0] }} – {{ metrics.f1_ci[1] }}{% else %}—{% endif %}</td>
+      </tr>
+      <tr>
+        <td>Sensitivity (Recall)</td>
+        <td class="metric-value">{{ metrics.sensitivity }}</td>
+        <td class="metric-ci">{% if metrics.sensitivity_ci %}{{ metrics.sensitivity_ci[0] }} – {{ metrics.sensitivity_ci[1] }}{% else %}—{% endif %}</td>
+      </tr>
+      <tr>
+        <td>Specificity</td>
+        <td class="metric-value">{{ metrics.specificity }}</td>
+        <td class="metric-ci">{% if metrics.specificity_ci %}{{ metrics.specificity_ci[0] }} – {{ metrics.specificity_ci[1] }}{% else %}—{% endif %}</td>
+      </tr>
+      {% if metrics.auc is not none %}
+      <tr>
+        <td>AUC-ROC</td>
+        <td class="metric-value">{{ metrics.auc }}</td>
+        <td class="metric-ci">{% if metrics.auc_ci %}{{ metrics.auc_ci[0] }} – {{ metrics.auc_ci[1] }}{% else %}—{% endif %}</td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:#6c757d;">No metrics provided. Pass a <code>MetricsResult</code> via <code>ReportInput.metrics</code>.</p>
+  {% endif %}
+</section>
+
+
+<!-- § 6 Clinical Evaluation -->
+<section>
+  <h2>Clinical Evaluation</h2>
+  <p class="section-ref">CDSCO MDSW Guidance § 6 — Clinical Evaluation &amp; Intended Purpose</p>
+  <table>
+    <thead><tr><th>Check</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for check in result.passing_checks %}
+      <tr>
+        <td class="check-pass">✓ {{ check }}</td>
+        <td><span class="badge badge-compliant" style="font-size:0.75em;padding:2px 8px;">PASS</span></td>
+      </tr>
+      {% endfor %}
+      {% for check in result.failing_checks %}
+      <tr>
+        <td class="check-fail">✗ {{ check }}</td>
+        <td><span class="badge badge-non-compliant" style="font-size:0.75em;padding:2px 8px;">FAIL</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+
+<!-- § 7 Post-Market Surveillance -->
+<section>
+  <h2>Post-Market Surveillance</h2>
+  <p class="section-ref">CDSCO MDSW Guidance § 7 — Post-Market Surveillance &amp; Vigilance Obligations</p>
+  {% if result.warnings %}
+  <table>
+    <thead><tr><th>Vigilance Item</th></tr></thead>
+    <tbody>
+      {% for w in result.warnings %}
+      <tr><td class="check-warn">⚠ {{ w }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:#065f46;">✓ No post-market surveillance flags raised.</p>
+  {% endif %}
+</section>
+
+
+<!-- Subgroup Bias Analysis -->
+{% if subgroups %}
+<section>
+  <h2>Subgroup Bias Analysis</h2>
+  <p class="section-ref">Fairness evaluation across sensitive demographic attributes</p>
+  {% for feature, groups in subgroups.items() %}
+  <div class="subgroup-feature-label">{{ feature }}</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Group</th>
+        <th>n</th>
+        <th>Accuracy</th>
+        <th>F1</th>
+        <th>Sensitivity</th>
+        <th>Specificity</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for group_val, m in groups.items() %}
+      <tr>
+        <td><strong>{{ group_val }}</strong></td>
+        <td>{{ m.n }}</td>
+        <td>{{ m.accuracy }}</td>
+        <td>{{ m.f1 }}</td>
+        <td>{{ m.sensitivity }}</td>
+        <td>{{ m.specificity }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endfor %}
+</section>
+{% endif %}
+
+
+<!-- Calibration (optional) -->
+{% if calibration %}
+<section>
+  <h2>Model Calibration</h2>
+  <p class="section-ref">Probability calibration — Expected Calibration Error (ECE) &amp; Maximum Calibration Error (MCE)</p>
+  <div class="cal-row">
+    <div class="cal-card">
+      <div class="val">{{ calibration.ece }}</div>
+      <div class="lbl">Expected Calibration Error (ECE)<br><small>Target: &lt; 0.10</small></div>
+    </div>
+    <div class="cal-card">
+      <div class="val">{{ calibration.mce }}</div>
+      <div class="lbl">Maximum Calibration Error (MCE)</div>
+    </div>
+    <div class="cal-card">
+      <div class="val">{{ 'Well Calibrated' if calibration.well_calibrated else 'Needs Calibration' }}</div>
+      <div class="lbl">Overall Status<br><small>(ECE &lt; 0.10 threshold)</small></div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+
+<!-- § 8 Registration Requirements -->
+<section>
+  <h2>Registration Requirements</h2>
+  <p class="section-ref">CDSCO MDSW Guidance § 8 — Registration &amp; Licensing under MDR 2017</p>
+  <table>
+    <thead><tr><th>Requirement</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>MDSW Classification (Class A/B/C/D) per MDR 2017 Schedule III</td>
+        <td class="check-warn">⚠ Manual review required</td>
+      </tr>
+      <tr>
+        <td>Form MD-14 / MD-16 submission to CDSCO</td>
+        <td class="check-warn">⚠ Out-of-scope for automated check</td>
+      </tr>
+      <tr>
+        <td>Technical Documentation per CDSCO MDSW § 8.2</td>
+        <td class="check-warn">⚠ Applicant responsibility</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+
+<footer>
+  Generated by <strong>Valiron</strong> — AI Regulatory Compliance Validation &nbsp;|&nbsp;
+  Reference: CDSCO Medical Devices Software Guidance Document (2022) &nbsp;|&nbsp;
+  This report is for informational purposes and does not constitute legal regulatory advice.
+</footer>
+
+</body>
+</html>
