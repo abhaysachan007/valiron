@@ -1,5 +1,10 @@
 # Valiron
 
+[![Tests](https://github.com/abhaysachan007/valiron/actions/workflows/ci.yml/badge.svg)](https://github.com/abhaysachan007/valiron/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/abhaysachan007/valiron/branch/main/graph/badge.svg)](https://codecov.io/gh/abhaysachan007/valiron)
+[![PyPI](https://img.shields.io/pypi/v/valiron.svg)](https://pypi.org/project/valiron/)
+[![Python](https://img.shields.io/pypi/pyversions/valiron.svg)](https://pypi.org/project/valiron/)
+
 **AI Regulatory Compliance Validation for Python**
 
 Valiron is a Python library that helps ML engineers and data scientists validate their AI/ML models against global regulatory frameworks — before deployment.

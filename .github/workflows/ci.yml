@@ -33,9 +33,11 @@ jobs:
         run: mypy valiron
 
       - name: Test
-        run: pytest --cov=valiron --cov-report=xml --cov-fail-under=80
+        run: pytest --cov=valiron --cov-report=xml --cov-report=term-missing --cov-fail-under=80
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
         with:
           file: ./coverage.xml
+          flags: unittests
+          fail_ci_if_error: false
