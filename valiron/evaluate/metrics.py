@@ -35,9 +35,21 @@ def compute_metrics(
     ci_level: float = 0.95,
     seed: int = 0,
 ) -> MetricsResult:
-    """Binary classification metrics with optional bootstrap CIs.
+    """Compute binary classification metrics with optional bootstrap CIs.
 
-    Raises ValueError if y_true is not binary.
+    Args:
+        y_true: Ground-truth binary labels (0/1).
+        y_pred: Predicted binary labels (0/1).
+        y_prob: Predicted probabilities for the positive class. Required for AUC.
+        bootstrap_n: Bootstrap resamples for CI estimation. 0 disables CIs.
+        ci_level: Confidence level for intervals, default 0.95.
+        seed: Random seed for reproducibility.
+
+    Returns:
+        MetricsResult with point estimates and, when bootstrap_n > 0, CIs.
+
+    Raises:
+        ValueError: If y_true contains more than 2 unique classes.
     """
     y_true = np.asarray(y_true)
     y_pred = np.asarray(y_pred)
@@ -73,9 +85,22 @@ def bootstrap_ci(
     ci_level: float = 0.95,
     seed: int = 0,
 ) -> Interval:
-    """Bootstrap CI for a single metric.
+    """Compute a bootstrap percentile confidence interval for one metric.
 
-    Raises ValueError if metric is not in supported set.
+    Args:
+        y_true: Ground-truth binary labels.
+        y_pred: Predicted binary labels.
+        metric: One of 'accuracy', 'f1', 'sensitivity', 'specificity', 'auc'.
+        y_prob: Predicted probabilities; required when metric='auc'.
+        n: Number of bootstrap resamples.
+        ci_level: Confidence level, default 0.95.
+        seed: Random seed for reproducibility.
+
+    Returns:
+        (lower, upper) tuple rounded to 4 decimal places.
+
+    Raises:
+        ValueError: If metric is not in the supported set.
     """
     if metric not in _SUPPORTED:
         raise ValueError(f"Unknown metric '{metric}'. Supported: {_SUPPORTED}")
@@ -113,6 +138,7 @@ def bootstrap_ci(
 
 
 def _sens_spec(y_true: np.ndarray, y_pred: np.ndarray) -> Tuple[float, float]:
+    """Return (sensitivity, specificity) from a binary confusion matrix."""
     classes = np.unique(np.concatenate([y_true, y_pred]))
     if len(classes) < 2:
         return (1.0, 0.0) if classes[0] == 1 else (0.0, 1.0)
@@ -122,10 +148,19 @@ def _sens_spec(y_true: np.ndarray, y_pred: np.ndarray) -> Tuple[float, float]:
     return float(sens), float(spec)
 
 
-def _attach_cis(result, y_true, y_pred, y_prob, n, ci_level, seed):
-    kw = dict(n=n, ci_level=ci_level, seed=seed)
-    result.accuracy_ci = bootstrap_ci(y_true, y_pred, "accuracy", **kw)
-    result.f1_ci = bootstrap_ci(y_true, y_pred, "f1", **kw)
+def _attach_cis(
+    result: MetricsResult,
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    y_prob: Optional[np.ndarray],
+    n: int,
+    ci_level: float,
+    seed: int,
+) -> None:
+    """Populate all CI fields on *result* in-place."""
+    kw: dict = dict(n=n, ci_level=ci_level, seed=seed)
+    result.accuracy_ci    = bootstrap_ci(y_true, y_pred, "accuracy",    **kw)
+    result.f1_ci          = bootstrap_ci(y_true, y_pred, "f1",          **kw)
     result.sensitivity_ci = bootstrap_ci(y_true, y_pred, "sensitivity", **kw)
     result.specificity_ci = bootstrap_ci(y_true, y_pred, "specificity", **kw)
     if y_prob is not None:
