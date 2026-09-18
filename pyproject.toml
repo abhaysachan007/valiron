@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling<1.27"]
 build-backend = "hatchling.build"
 
 [project]
 name = "valiron"
-version = "0.1.0"
+version = "0.2.0"
 description = "AI regulatory compliance validation for Python"
 readme = "README.md"
 license = { file = "LICENSE" }

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EU AI Act Compliance Report — {{ result.use_case }}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      color: #1a1a2e;
+      background: #f8f9fa;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .report-header {
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-top: 4px solid #003399;
+      border-radius: 6px;
+      padding: 28px 32px;
+      margin-bottom: 24px;
+    }
+    .report-header h1 { margin: 0 0 4px; font-size: 1.5em; color: #003399; }
+    .report-header .subtitle { color: #6c757d; font-size: 0.95em; margin-bottom: 12px; }
+    .annex-badge {
+      display: inline-block;
+      background: #003399;
+      color: #fff;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.85em;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+    }
+    .meta-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .meta-item label { font-weight: 600; color: #495057; display: block; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.05em; }
+    .badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9em;
+      letter-spacing: 0.03em;
+    }
+    .badge-compliant { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+    .badge-non-compliant { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .score-bar-wrap { margin: 8px 0 0; }
+    .score-bar { height: 10px; background: #e9ecef; border-radius: 5px; overflow: hidden; }
+    .score-fill { height: 100%; border-radius: 5px; background: {{ '#10b981' if result.compliant else '#ef4444' }}; width: {{ (result.score * 100) | round(1) }}%; }
+    .score-pct { font-size: 1.3em; font-weight: 700; margin-top: 4px; color: {{ '#065f46' if result.compliant else '#991b1b' }}; }
+
+    section {
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+    }
+    section h2 {
+      margin: 0 0 2px;
+      font-size: 1.1em;
+      color: #003399;
+      border-bottom: 1px solid #e9ecef;
+      padding-bottom: 8px;
+    }
+    .section-ref { font-size: 0.78em; color: #6c757d; margin: 0 0 14px; }
+    .article-tag {
+      display: inline-block;
+      background: #eef2ff;
+      color: #3730a3;
+      border: 1px solid #c7d2fe;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 0.78em;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.92em; }
+    th { background: #f1f5f9; font-weight: 600; color: #374151; padding: 9px 12px; text-align: left; border-bottom: 2px solid #dee2e6; }
+    td { padding: 8px 12px; border-bottom: 1px solid #f1f3f4; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+
+    .check-pass { color: #065f46; font-weight: 500; }
+    .check-fail { color: #991b1b; font-weight: 700; }
+    .check-warn { color: #92400e; }
+
+    .metric-value { font-weight: 700; font-size: 1.05em; }
+    .metric-ci { font-size: 0.8em; color: #6c757d; }
+
+    .subgroup-feature-label { font-weight: 700; color: #003399; margin: 16px 0 4px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .cal-row { display: flex; gap: 16px; margin-top: 12px; }
+    .cal-card { flex: 1; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 14px 18px; }
+    .cal-card .val { font-size: 1.5em; font-weight: 700; color: #003399; }
+    .cal-card .lbl { font-size: 0.8em; color: #6c757d; margin-top: 2px; }
+
+    footer {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 0.78em;
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid #e9ecef;
+    }
+  </style>
+</head>
+<body>
+
+<div class="report-header">
+  <div class="annex-badge">EU AI Act — Annex III — High Risk AI System</div>
+  <h1>EU AI Act Compliance Report</h1>
+  <p class="subtitle">Regulation (EU) 2024/1689 — High-Risk AI System Validation (Valiron)</p>
+  <div class="meta-grid">
+    <div class="meta-item">
+      <label>Regulation</label>
+      <span>EU AI Act (Regulation (EU) 2024/1689)</span>
+    </div>
+    <div class="meta-item">
+      <label>Use Case</label>
+      <span>{{ result.use_case }}</span>
+    </div>
+    <div class="meta-item">
+      <label>Compliance Status</label>
+      <span class="badge {{ 'badge-compliant' if result.compliant else 'badge-non-compliant' }}">
+        {{ 'COMPLIANT' if result.compliant else 'NON-COMPLIANT' }}
+      </span>
+    </div>
+    <div class="meta-item">
+      <label>Overall Score</label>
+      <div class="score-bar-wrap">
+        <div class="score-bar"><div class="score-fill"></div></div>
+        <div class="score-pct">{{ (result.score * 100) | round(1) }}%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Article 9: Risk Management System -->
+<section>
+  <h2><span class="article-tag">Article 9</span> Risk Management System</h2>
+  <p class="section-ref">EU AI Act Article 9 — Continuous risk identification, analysis, and mitigation throughout the AI system lifecycle.</p>
+
+  <table>
+    <thead>
+      <tr><th>Check</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for chk in result.passing_checks %}
+      <tr><td class="check-pass">✓ {{ chk }}</td><td class="check-pass">PASS</td></tr>
+      {% endfor %}
+      {% for chk in result.failing_checks %}
+      <tr><td class="check-fail">✗ {{ chk }}</td><td class="check-fail">FAIL</td></tr>
+      {% endfor %}
+      {% if not result.passing_checks and not result.failing_checks %}
+      <tr><td colspan="2" style="color:#6c757d;">No checks recorded.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</section>
+
+
+<!-- Article 10: Data Governance -->
+<section>
+  <h2><span class="article-tag">Article 10</span> Data Governance</h2>
+  <p class="section-ref">EU AI Act Article 10 — Training, validation, and testing data requirements; data quality and bias examination.</p>
+
+  {% if subgroups %}
+  <p>Subgroup fairness analysis performed across sensitive attributes to assess data representativeness and bias.</p>
+  {% for feature, groups in subgroups.items() %}
+  <div class="subgroup-feature-label">Feature: {{ feature }}</div>
+  <table>
+    <thead>
+      <tr><th>Group</th><th>Accuracy</th><th>F1</th><th>Sensitivity</th><th>Specificity</th><th>N</th></tr>
+    </thead>
+    <tbody>
+      {% for group_name, grp in groups.items() %}
+      <tr>
+        <td>{{ group_name }}</td>
+        <td>{{ "%.3f"|format(grp.accuracy) if grp.accuracy is defined else grp.get('accuracy', '—') }}</td>
+        <td>{{ "%.3f"|format(grp.f1) if grp.f1 is defined else grp.get('f1', '—') }}</td>
+        <td>{{ "%.3f"|format(grp.sensitivity) if grp.sensitivity is defined else grp.get('sensitivity', '—') }}</td>
+        <td>{{ "%.3f"|format(grp.specificity) if grp.specificity is defined else grp.get('specificity', '—') }}</td>
+        <td>{{ grp.n if grp.n is defined else grp.get('n', '—') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endfor %}
+  {% else %}
+  <p style="color:#6c757d;">No subgroup analysis data provided. Provide <code>subgroups</code> in ReportInput for Article 10 coverage.</p>
+  {% endif %}
+</section>
+
+
+<!-- Article 13: Transparency and Logging -->
+<section>
+  <h2><span class="article-tag">Article 13</span> Transparency &amp; Logging</h2>
+  <p class="section-ref">EU AI Act Article 13 — Transparency obligations: logging, traceability, and information to deployers.</p>
+
+  {% if result.warnings %}
+  <table>
+    <thead>
+      <tr><th>Warning / Transparency Item</th></tr>
+    </thead>
+    <tbody>
+      {% for w in result.warnings %}
+      <tr><td class="check-warn">⚠ {{ w }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:#065f46;">✓ No transparency warnings flagged.</p>
+  {% endif %}
+</section>
+
+
+<!-- Article 14: Human Oversight -->
+<section>
+  <h2><span class="article-tag">Article 14</span> Human Oversight</h2>
+  <p class="section-ref">EU AI Act Article 14 — Human oversight measures enabling effective monitoring and intervention by deployers.</p>
+
+  <p>The following measures support human oversight of this AI system:</p>
+  <ul>
+    <li>Model output confidence scores and calibration data should be surfaced to human reviewers.</li>
+    <li>Override and correction mechanisms must be documented in the system's operational procedures.</li>
+    <li>Periodic human review of flagged edge cases is recommended.</li>
+    {% if calibration %}
+    <li>Calibration (ECE = {{ "%.4f"|format(calibration.ece) }}) — {% if calibration.well_calibrated %}well-calibrated, outputs are trustworthy for human review{% else %}poorly calibrated, human reviewers should treat probability outputs with caution{% endif %}.</li>
+    {% endif %}
+  </ul>
+</section>
+
+
+<!-- Article 15: Accuracy and Robustness -->
+<section>
+  <h2><span class="article-tag">Article 15</span> Accuracy &amp; Robustness</h2>
+  <p class="section-ref">EU AI Act Article 15 — Accuracy, robustness, and cybersecurity. Appropriate levels of accuracy for the intended purpose.</p>
+
+  {% if metrics %}
+  <table>
+    <thead>
+      <tr><th>Metric</th><th>Value</th><th>95% CI</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Accuracy</td>
+        <td class="metric-value">{{ "%.4f"|format(metrics.accuracy) }}</td>
+        <td class="metric-ci">{% if metrics.accuracy_ci %}[{{ "%.4f"|format(metrics.accuracy_ci[0]) }}, {{ "%.4f"|format(metrics.accuracy_ci[1]) }}]{% else %}—{% endif %}</td>
+      </tr>
+      <tr>
+        <td>F1 Score</td>
+        <td class="metric-value">{{ "%.4f"|format(metrics.f1) }}</td>
+        <td class="metric-ci">{% if metrics.f1_ci %}[{{ "%.4f"|format(metrics.f1_ci[0]) }}, {{ "%.4f"|format(metrics.f1_ci[1]) }}]{% else %}—{% endif %}</td>
+      </tr>
+      <tr>
+        <td>Sensitivity (Recall)</td>
+        <td class="metric-value">{{ "%.4f"|format(metrics.sensitivity) }}</td>
+        <td class="metric-ci">{% if metrics.sensitivity_ci %}[{{ "%.4f"|format(metrics.sensitivity_ci[0]) }}, {{ "%.4f"|format(metrics.sensitivity_ci[1]) }}]{% else %}—{% endif %}</td>
+      </tr>
+      <tr>
+        <td>Specificity</td>
+        <td class="metric-value">{{ "%.4f"|format(metrics.specificity) }}</td>
+        <td class="metric-ci">{% if metrics.specificity_ci %}[{{ "%.4f"|format(metrics.specificity_ci[0]) }}, {{ "%.4f"|format(metrics.specificity_ci[1]) }}]{% else %}—{% endif %}</td>
+      </tr>
+      {% if metrics.auc %}
+      <tr>
+        <td>AUC-ROC</td>
+        <td class="metric-value">{{ "%.4f"|format(metrics.auc) }}</td>
+        <td class="metric-ci">{% if metrics.auc_ci %}[{{ "%.4f"|format(metrics.auc_ci[0]) }}, {{ "%.4f"|format(metrics.auc_ci[1]) }}]{% else %}—{% endif %}</td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:#6c757d;">No metrics data provided. Pass <code>metrics</code> in ReportInput for Article 15 coverage.</p>
+  {% endif %}
+
+  {% if calibration %}
+  <h3 style="font-size:1em; margin: 20px 0 8px; color: #374151;">Model Calibration</h3>
+  <div class="cal-row">
+    <div class="cal-card">
+      <div class="val">{{ "%.4f"|format(calibration.ece) }}</div>
+      <div class="lbl">Expected Calibration Error (ECE)</div>
+    </div>
+    <div class="cal-card">
+      <div class="val">{{ "%.4f"|format(calibration.mce) }}</div>
+      <div class="lbl">Maximum Calibration Error (MCE)</div>
+    </div>
+    <div class="cal-card">
+      <div class="val" style="color: {{ '#10b981' if calibration.well_calibrated else '#ef4444' }};">
+        {{ 'Well calibrated' if calibration.well_calibrated else 'Poorly calibrated' }}
+      </div>
+      <div class="lbl">Calibration Assessment (ECE &lt; 0.10)</div>
+    </div>
+  </div>
+  {% endif %}
+</section>
+
+<footer>
+  Generated by Valiron — AI Validation Infrastructure &nbsp;|&nbsp; EU AI Act (Regulation (EU) 2024/1689)
+</footer>
+
+</body>
+</html>

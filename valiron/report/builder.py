@@ -16,6 +16,7 @@ _TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 _REGULATION_TEMPLATES: Dict[str, str] = {
     "cdsco_mdsw": "cdsco.html.j2",
+    "eu_ai_act": "eu_ai_act.html.j2",
 }
 _DEFAULT_TEMPLATE = "report.html.j2"
 

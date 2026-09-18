@@ -99,6 +99,95 @@ valiron.report(result, format="html", output="compliance_report.html")
 
 ---
 
+## Algorithm Change Protocol (ACP) — v0.2
+
+Track model versions and detect regressions before deployment.
+
+```python
+from valiron.acp import save_version, load_version, diff_versions, generate_acp_document
+from valiron.evaluate.metrics import MetricsResult
+
+# Save a version after training
+mv1 = save_version(model_v1, {
+    "id": "v1.0.0",
+    "name": "risk-model",
+    "version_string": "1.0.0",
+    "metrics": metrics_v1,      # MetricsResult from compute_metrics()
+    "subgroups": subgroups,     # dict from analyze_subgroups()
+    "regulation": "eu_ai_act",
+    "notes": "initial production model",
+})
+
+# Later: save candidate version and diff
+mv2 = save_version(model_v2, {"id": "v1.1.0", ...})
+diff = diff_versions(mv1, mv2)
+
+print(diff.regression_detected)   # True/False
+print(generate_acp_document(diff)) # markdown ACP report
+
+# List all saved versions
+from valiron.acp import list_versions
+print(list_versions())
+```
+
+Versions are stored as JSON in `.valiron/` in your working directory. Regression = any metric drops > 2% relative to baseline.
+
+---
+
+## EU AI Act Report — v0.2
+
+Dedicated HTML report for Regulation (EU) 2024/1689 Annex III high-risk AI systems, covering Articles 9, 10, 13, 14, and 15.
+
+```python
+from valiron.report.builder import ReportInput, report
+
+ri = ReportInput(
+    eval_result=valiron.evaluate(model, X_test, y_test, regulation="eu_ai_act", ...),
+    metrics=metrics,
+    subgroups=subgroups,
+    calibration=calibration,
+)
+
+html = report(ri, format="html", output="eu_ai_act_compliance.html")
+```
+
+The template maps Valiron data to EU AI Act obligations:
+- **Article 9** (Risk Management) — compliance check results
+- **Article 10** (Data Governance) — subgroup bias analysis
+- **Article 13** (Transparency) — warnings and audit trail
+- **Article 14** (Human Oversight) — calibration-aware oversight guidance
+- **Article 15** (Accuracy & Robustness) — metrics table with 95% CIs
+
+---
+
+## Drift Monitoring — v0.2
+
+Detect data and performance drift in production using Population Stability Index (PSI).
+
+```python
+from valiron.monitoring import monitor, generate_drift_report
+
+drift = monitor(
+    baseline_data=X_train_df,      # pandas DataFrame
+    current_data=X_production_df,
+    baseline_metrics=metrics_train,
+    current_metrics=metrics_production,
+    threshold=0.2,                  # PSI threshold for severe drift
+)
+
+print(drift.drift_detected)        # True/False
+print(drift.severity)              # "none" | "mild" | "severe"
+print(drift.psi_scores)            # {"feature": psi_value, ...}
+print(drift.alerts)                # performance degradation alerts
+
+print(generate_drift_report(drift)) # markdown report
+```
+
+PSI thresholds: < 0.1 = no drift, 0.1–0.2 = mild, > 0.2 = severe.
+Performance alert fires when any metric drops > 5% relative to baseline.
+
+---
+
 ## Roadmap
 
 - [ ] ISO 42001 (AI Management Systems)
