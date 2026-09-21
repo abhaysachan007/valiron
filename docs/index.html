@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Valiron — AI Compliance Evidence, Generated Automatically</title>
+  <meta name="description" content="Valiron generates CDSCO, FDA, and EU AI Act compliance documentation for AI models automatically. Open source. pip install valiron." />
+  <meta property="og:title" content="Valiron — AI Compliance Evidence, Generated Automatically" />
+  <meta property="og:description" content="CDSCO · EU AI Act · FDA · RBI — one tool, every regulation. What took months and lakhs now takes minutes." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://valiron.ai" />
+  <meta property="og:image" content="https://valiron.ai/og-image.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    :root {
+      --bg:        #0D0D14;
+      --surface:   #12121C;
+      --surface2:  #16162A;
+      --border:    #1F1F35;
+      --border2:   #2A2A42;
+      --text:      #E8E8F2;
+      --dim:       #9090AA;
+      --muted:     #5A5A78;
+      --blue:      #3B7BF6;
+      --cyan:      #06B6D4;
+      --grad:      linear-gradient(135deg, #3B7BF6 0%, #06B6D4 100%);
+      --grad-soft: linear-gradient(135deg, rgba(59,123,246,0.15) 0%, rgba(6,182,212,0.15) 100%);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      margin: 0;
+    }
+
+    /* ── Typography ── */
+    h1,h2,h3 { margin: 0; font-weight: 600; letter-spacing: -0.03em; }
+    p { margin: 0; }
+
+    /* ── Gradient helpers ── */
+    .grad-text {
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Nav ── */
+    .nav-wrap {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(13,13,20,0.82);
+      border-bottom: 1px solid var(--border);
+      transition: box-shadow 0.3s;
+    }
+    .nav-wrap.scrolled { box-shadow: 0 4px 28px rgba(0,0,0,0.45); }
+    nav { max-width: 72rem; margin: 0 auto; padding: 0 1.5rem; height: 3.5rem; display: flex; align-items: center; justify-content: space-between; }
+
+    .nav-link {
+      color: var(--dim); font-size: 0.875rem; text-decoration: none;
+      transition: color 0.15s;
+    }
+    .nav-link:hover { color: var(--text); }
+    .nav-link:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 4px; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0.7rem 1.4rem; border-radius: 8px;
+      font-weight: 500; font-size: 0.9rem; font-family: inherit;
+      cursor: pointer; border: none; text-decoration: none;
+      white-space: nowrap; transition: all 0.2s;
+    }
+    .btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+    .btn-primary {
+      background: var(--grad); color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .btn-primary::after {
+      content: ''; position: absolute; top: 0; left: -100%; width: 55%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+      transform: skewX(-18deg); pointer-events: none;
+    }
+    .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: 0 8px 28px rgba(59,123,246,0.28); }
+    .btn-primary:hover::after { animation: shimmer 0.55s ease forwards; }
+    .btn-primary:active { transform: none; }
+    @keyframes shimmer { from { left: -100%; } to { left: 160%; } }
+
+    .btn-ghost {
+      background: transparent; color: var(--dim);
+      border: 1px solid var(--border2);
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--dim); background: var(--surface); }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--dim);
+    }
+    .btn-outline:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    /* ── Code / mono ── */
+    .mono { font-family: 'SF Mono','Fira Code','Cascadia Code',monospace; }
+
+    /* ── Code block ── */
+    .code-block {
+      background: #09090F;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: 'SF Mono','Fira Code',monospace;
+      font-size: 12.5px; line-height: 1.8;
+      overflow-x: auto;
+    }
+    .code-line { display: block; padding: 0 1.25rem; }
+    .t-cmd  { color: var(--blue); }
+    .t-kw   { color: #818CF8; }
+    .t-fn   { color: #67E8F9; }
+    .t-str  { color: #34D399; }
+    .t-cmt  { color: var(--muted); }
+    .t-ok   { color: #10B981; }
+    .t-pl   { color: #C8C8E8; }
+    .t-im   { color: #A78BFA; }
+
+    /* ── Browser mockup ── */
+    .browser-chrome {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+    .browser-bar {
+      background: #1A1A2C;
+      border-bottom: 1px solid var(--border);
+      padding: 0.6rem 1rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .b-dot { width: 9px; height: 9px; border-radius: 50%; }
+    .b-url {
+      flex: 1; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 5px; padding: 0.22rem 0.75rem;
+      font-size: 0.72rem; color: var(--muted); font-family: 'SF Mono',monospace;
+    }
+
+    /* ── Report preview inside browser ── */
+    .report-inner {
+      background: #F8F9FC;
+      padding: 1.25rem 1.5rem;
+      color: #1A1A2A;
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      min-height: 380px;
+      overflow: hidden;
+    }
+    .rpt-header { border-bottom: 2px solid #E2E8F0; padding-bottom: 0.75rem; margin-bottom: 1rem; }
+    .rpt-title { font-size: 13.5px; font-weight: 700; color: #0F172A; letter-spacing: -0.01em; }
+    .rpt-sub { font-size: 10.5px; color: #64748B; margin-top: 2px; }
+    .rpt-badge { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 600; background: #DCFCE7; color: #166534; }
+    .rpt-section { font-size: 10px; font-weight: 700; color: #3B7BF6; letter-spacing: 0.08em; margin: 0.85rem 0 0.4rem; }
+    .rpt-check { display: flex; align-items: flex-start; gap: 0.4rem; margin-bottom: 0.3rem; font-size: 11px; color: #334155; line-height: 1.4; }
+    .rpt-check .chk { color: #16A34A; flex-shrink: 0; font-size: 10px; margin-top: 1px; }
+    .rpt-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 0.4rem; }
+    .rpt-table th { background: #F1F5F9; color: #475569; font-weight: 600; padding: 4px 8px; text-align: left; border: 1px solid #E2E8F0; }
+    .rpt-table td { padding: 4px 8px; border: 1px solid #E2E8F0; color: #334155; }
+    .rpt-table tr:nth-child(even) td { background: #F8FAFC; }
+    .rpt-pass { color: #16A34A; font-weight: 600; }
+    .rpt-warn { color: #D97706; font-weight: 600; }
+    .metric-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #F1F5F9; font-size: 11px; color: #475569; }
+    .metric-val { font-weight: 600; color: #0F172A; }
+
+    /* ── Pill ── */
+    .pill {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.3rem 0.75rem; border-radius: 999px;
+      border: 1px solid var(--border); background: var(--surface);
+      font-size: 0.78rem; font-weight: 500; color: var(--dim);
+      white-space: nowrap; transition: border-color 0.2s, color 0.2s;
+    }
+    .pill:hover { border-color: var(--blue); color: var(--text); }
+    .pill .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Trust bar ── */
+    .trust-item {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.82rem; color: var(--dim); white-space: nowrap;
+    }
+    .trust-item .ico { color: #10B981; font-size: 0.9rem; }
+
+    /* ── Section cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .card:hover { border-color: var(--blue); background: var(--surface2); }
+    .card-icon { transition: box-shadow 0.3s, background 0.3s; }
+    .card:hover .card-icon { box-shadow: 0 0 18px 2px var(--icon-glow, rgba(59,123,246,0.35)); }
+
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.75rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .step-card:hover { border-color: rgba(6,182,212,0.4); transform: translateY(-2px); }
+
+    /* ── Founder ── */
+    .founder-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem 3rem;
+      max-width: 52rem; margin: 0 auto;
+      display: flex; align-items: center; gap: 2.5rem;
+      flex-wrap: wrap;
+    }
+    .avatar {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--grad);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; font-weight: 600; color: #fff;
+      flex-shrink: 0;
+    }
+
+    /* ── Report preview section ── */
+    .report-preview-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      max-width: 52rem; margin: 0 auto;
+    }
+    .rp-header {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 1.75rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .rp-body { padding: 1.75rem; }
+
+    /* ── Waitlist input ── */
+    .wl-input {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 8px; padding: 0.75rem 1rem;
+      color: var(--text); font-size: 0.95rem; font-family: inherit;
+      outline: none; width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .wl-input::placeholder { color: var(--muted); }
+    .wl-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(59,123,246,0.12); }
+
+    /* scroll reveal removed — all content visible by default */
+
+    /* ── Hero load animation ── */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:none; } }
+    .h-badge  { animation: fadeUp 0.45s ease 0.05s both; }
+    .h-line1  { display:block; animation: fadeUp 0.45s ease 0.17s both; }
+    .h-line2  { display:block; animation: fadeUp 0.45s ease 0.47s both; }
+    .h-sub    { animation: fadeUp 0.45s ease 0.62s both; }
+    .h-ctas   { animation: fadeUp 0.45s ease 0.75s both; }
+    .h-right  { animation: fadeUp 0.55s ease 0.25s both; }
+
+    /* ── Code cursor blink ── */
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .code-cursor::after { content:'█'; animation: blink 1s step-end infinite; color:var(--cyan); font-size:0.8em; }
+
+    /* ── Typing lines ── */
+    .type-line { opacity:0; }
+    .type-line.show { opacity:1; }
+
+    /* ── Features grid ── */
+    .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; justify-items:stretch; }
+    @media (max-width:900px) { .features-grid { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:540px) { .features-grid { grid-template-columns:1fr; } }
+
+    /* ── FAQ ── */
+    .faq-wrap { max-width:52rem; margin:0 auto; }
+    .faq-item { border-bottom:1px solid var(--border); }
+    .faq-btn {
+      width:100%; background:none; border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1.25rem 0; gap:1rem; text-align:left;
+      color:var(--text); font-size:0.95rem; font-weight:500; font-family:inherit;
+      transition:color 0.2s;
+    }
+    .faq-btn:hover { color:var(--cyan); }
+    .faq-icon {
+      flex-shrink:0; width:22px; height:22px; border:1px solid var(--border2);
+      border-radius:5px; display:flex; align-items:center; justify-content:center;
+      font-size:1rem; color:var(--dim); transition:all 0.2s; line-height:1;
+    }
+    .faq-btn[aria-expanded="true"] .faq-icon { border-color:var(--cyan); color:var(--cyan); transform:rotate(45deg); }
+    .faq-body { overflow:hidden; max-height:0; transition:max-height 0.32s ease; }
+    .faq-body.open { max-height:240px; }
+    .faq-body p { color:var(--dim); font-size:0.9rem; line-height:1.75; padding-bottom:1.25rem; margin:0; }
+
+    /* ── Mobile menu ── */
+    #mob-menu { display: none; flex-direction: column; gap: 0.85rem; background: var(--surface); border-top: 1px solid var(--border); padding: 1rem 1.5rem; }
+    #mob-menu.open { display: flex; }
+
+    /* ── Section spacing ── */
+    .section { padding: 5rem 1.5rem; }
+    .section-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+    .section-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.07em; color: var(--cyan); margin-bottom: 0.75rem; }
+    .section-inner { max-width: 72rem; margin: 0 auto; }
+    .section-inner-sm { max-width: 52rem; margin: 0 auto; }
+
+    /* ── Footer ── */
+    .footer-link { color: var(--muted); font-size: 0.84rem; text-decoration: none; transition: color 0.15s; }
+    .footer-link:hover { color: var(--text); }
+
+    /* ── Reduced motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      .h-badge,.h-title,.h-sub,.h-ctas,.h-right { animation: none; opacity:1; }
+      .card,.step-card,.btn-primary,.btn-ghost,.btn-outline { transition: none; }
+    }
+
+    /* ── Mobile fixes ── */
+    @media (max-width: 640px) {
+      .founder-wrap { padding: 1.75rem; gap: 1.5rem; }
+      .rp-header { padding: 1rem 1.25rem; }
+      .rp-body { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     NAV
+══════════════════════════════════════ -->
+<header class="nav-wrap">
+  <nav>
+    <a href="/" aria-label="Valiron home" style="text-decoration:none; font-weight:600; font-size:1.05rem; letter-spacing:-0.025em; color:var(--text);">Valiron</a>
+
+    <!-- Desktop -->
+    <div style="display:flex; align-items:center; gap:1.5rem;" class="hidden md:flex">
+      <a href="#how-it-works" class="nav-link">How it works</a>
+      <a href="#preview" class="nav-link">See output</a>
+      <a href="https://github.com/abhaysachan007/valiron" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+      <a href="#waitlist" class="btn btn-primary" style="padding:0.45rem 1rem; font-size:0.84rem;">Join Waitlist</a>
+    </div>
+
+    <!-- Hamburger -->
+    <button id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mob-menu"
+      style="display:none; flex-direction:column; gap:5px; padding:0.4rem; background:none; border:none; cursor:pointer;" class="md:hidden">
+      <span id="h1" style="display:block;width:20px;height:1.5px;background:var(--dim);transition:transform .2s,opacity .2s;"></span>
+      <span id="h2" style="display:block;width:20px;height:1.5px;background:var(--dim);transition:opacity .2s;"></span>
+      <span id="h3" style="display:block;width:20px;height:1.5px;background:var(--dim);transition:transform .2s;"></span>
+    </button>
+  </nav>
+  <div id="mob-menu" role="navigation" aria-label="Mobile navigation">
+    <a href="#how-it-works" class="nav-link">How it works</a>
+    <a href="#preview" class="nav-link">See output</a>
+    <a href="https://github.com/abhaysachan007/valiron" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+    <a href="#waitlist" class="btn btn-primary" style="width:fit-content; padding:0.55rem 1.1rem;">Join Waitlist</a>
+  </div>
+</header>
+
+
+<!-- ══════════════════════════════════════
+     HERO — split layout
+══════════════════════════════════════ -->
+<main>
+<section style="padding: 7.5rem 1.5rem 4.5rem;">
+  <div class="section-inner">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:3.5rem; align-items:center;">
+
+      <!-- LEFT — text -->
+      <div>
+        <div class="h-badge" style="margin-bottom:1.5rem;">
+          <a href="https://pypi.org/project/valiron/" target="_blank" rel="noopener" style="text-decoration:none;">
+            <span class="pill" style="font-size:0.75rem;">
+              <span class="dot" style="background:var(--grad); background:linear-gradient(135deg,var(--blue),var(--cyan));"></span>
+              Now on PyPI
+              <span style="color:var(--border2); margin:0 0.1rem;">·</span>
+              <code class="mono" style="font-size:0.73rem; color:var(--cyan);">pip install valiron</code>
+            </span>
+          </a>
+        </div>
+
+        <h1 style="font-size: clamp(2rem, 3.5vw, 2.8rem); line-height:1.12; margin-bottom:1.25rem; color:var(--text);">
+          <span class="h-line1">AI Compliance Evidence,</span>
+          <span class="h-line2 grad-text">Generated Automatically</span>
+        </h1>
+
+        <p class="h-sub" style="font-size:1rem; color:var(--dim); line-height:1.7; max-width:34rem; margin-bottom:2rem;">
+          CDSCO · EU AI Act · FDA · RBI — one tool, every regulation.
+          What took months and lakhs now takes minutes.
+        </p>
+
+        <div class="h-ctas" style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+          <a href="#waitlist" class="btn btn-primary" style="padding:0.8rem 1.5rem;">Join Waitlist</a>
+          <a href="https://github.com/abhaysachan007/valiron" target="_blank" rel="noopener" class="btn btn-ghost" style="padding:0.8rem 1.5rem;">View on GitHub</a>
+        </div>
+        <a href="https://colab.research.google.com/github/abhaysachan007/valiron/blob/main/colab_demo.ipynb" target="_blank" rel="noopener" style="display:inline-block; margin-top:0.6rem; font-size:0.82rem; color:var(--cyan); text-decoration:none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">▶ Try in Google Colab — runs in 60 seconds</a>
+      </div>
+
+      <!-- RIGHT — browser mockup -->
+      <div class="h-right">
+        <div class="browser-chrome">
+          <div class="browser-bar">
+            <span class="b-dot" style="background:#EF4444;"></span>
+            <span class="b-dot" style="background:#F59E0B;"></span>
+            <span class="b-dot" style="background:#10B981;"></span>
+            <div class="b-url">valiron.ai/report/cdsco-preview</div>
+          </div>
+          <div class="report-inner">
+            <div class="rpt-header" style="display:flex; align-items:flex-start; justify-content:space-between; gap:1rem;">
+              <div>
+                <div class="rpt-title">CDSCO MDSW Compliance Report</div>
+                <div class="rpt-sub">DiagnosticAI v2.1 · Generated 13 Sep 2026 · 4.2s</div>
+              </div>
+              <span class="rpt-badge">COMPLIANT</span>
+            </div>
+
+            <div class="rpt-section">§5 PERFORMANCE EVALUATION</div>
+            <div class="metric-row"><span>Accuracy</span><span class="metric-val">0.914 <span style="color:#64748B;font-weight:400;">[0.89–0.94]</span></span></div>
+            <div class="metric-row"><span>Sensitivity</span><span class="metric-val">0.847 <span style="color:#64748B;font-weight:400;">[0.81–0.88]</span></span></div>
+            <div class="metric-row"><span>Specificity</span><span class="metric-val">0.931 <span style="color:#64748B;font-weight:400;">[0.91–0.95]</span></span></div>
+            <div class="metric-row" style="border:none;"><span>AUC-ROC</span><span class="metric-val">0.961 <span style="color:#64748B;font-weight:400;">[0.94–0.98]</span></span></div>
+
+            <div class="rpt-section">§6 CLINICAL EVALUATION</div>
+            <div class="rpt-check"><span class="chk">✓</span><span>Sensitivity ≥ 0.60 threshold met</span></div>
+            <div class="rpt-check"><span class="chk">✓</span><span>Calibration well-calibrated (ECE 0.047)</span></div>
+            <div class="rpt-check"><span class="chk">✓</span><span>Bootstrap CIs within acceptable bounds</span></div>
+
+            <div class="rpt-section">SUBGROUP BIAS ANALYSIS</div>
+            <table class="rpt-table">
+              <thead><tr><th>Group</th><th>Accuracy</th><th>Sensitivity</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>Age 18–35</td><td>0.921</td><td>0.863</td><td class="rpt-pass">Pass</td></tr>
+                <tr><td>Age 36–55</td><td>0.908</td><td>0.841</td><td class="rpt-pass">Pass</td></tr>
+                <tr><td>Age 55+</td><td>0.897</td><td>0.819</td><td class="rpt-pass">Pass</td></tr>
+                <tr><td>Female</td><td>0.916</td><td>0.852</td><td class="rpt-pass">Pass</td></tr>
+                <tr><td>Male</td><td>0.911</td><td>0.843</td><td class="rpt-pass">Pass</td></tr>
+              </tbody>
+            </table>
+            <div style="font-size:9.5px; color:#94A3B8; margin-top:6px;">Max accuracy disparity: 0.024 · Max sensitivity disparity: 0.044</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     TRUST SIGNALS BAR
+══════════════════════════════════════ -->
+<section style="border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 1.25rem 1.5rem;">
+  <div class="section-inner" style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:2rem;">
+    <div class="trust-item"><span class="ico">✓</span> 106 tests passing</div>
+    <div class="trust-item"><span class="ico">✓</span> 94% code coverage</div>
+    <div class="trust-item"><span class="ico">✓</span> MIT Licensed</div>
+    <div class="trust-item"><span class="ico">✓</span> Data never leaves your system</div>
+    <div class="trust-item">
+      <span style="color:var(--muted);">Covers regulations in:</span>
+      <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+        <span class="pill" style="padding:0.2rem 0.6rem;"><span class="dot" style="background:var(--blue);"></span>CDSCO</span>
+        <span class="pill" style="padding:0.2rem 0.6rem;"><span class="dot" style="background:#818CF8;"></span>EU AI Act</span>
+        <span class="pill" style="padding:0.2rem 0.6rem;"><span class="dot" style="background:var(--cyan);"></span>FDA</span>
+        <span class="pill" style="padding:0.2rem 0.6rem;"><span class="dot" style="background:#34D399;"></span>RBI</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     HOW IT WORKS
+══════════════════════════════════════ -->
+<section id="how-it-works" class="section">
+  <div class="section-inner">
+    <div class="reveal" style="text-align:center; margin-bottom:3.5rem;">
+      <div class="section-label">HOW IT WORKS</div>
+      <h2 style="font-size: clamp(1.6rem, 3vw, 2.2rem); margin-bottom:0.75rem;">From model to regulator-ready report</h2>
+      <p style="color:var(--dim); font-size:0.95rem; max-width:30rem; margin:0 auto; line-height:1.65;">Three steps. No manual audits. No compliance consultants.</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem;">
+      <div class="step-card reveal">
+        <div style="font-size:0.7rem; font-weight:700; color:var(--blue); margin-bottom:1rem; letter-spacing:0.06em;">STEP 1</div>
+        <h3 style="font-size:1rem; margin-bottom:0.6rem;">Connect</h3>
+        <p style="color:var(--dim); font-size:0.875rem; line-height:1.65;">Point Valiron at your model and evaluation dataset. Any scikit-learn-compatible model or raw numpy arrays.</p>
+      </div>
+      <div class="step-card reveal">
+        <div style="font-size:0.7rem; font-weight:700; color:var(--cyan); margin-bottom:1rem; letter-spacing:0.06em;">STEP 2</div>
+        <h3 style="font-size:1rem; margin-bottom:0.6rem;">Analyze</h3>
+        <p style="color:var(--dim); font-size:0.875rem; line-height:1.65;">Automated bias detection, calibration, bootstrap confidence intervals, and performance across every demographic subgroup.</p>
+      </div>
+      <div class="step-card reveal">
+        <div style="font-size:0.7rem; font-weight:700; color:#10B981; margin-bottom:1rem; letter-spacing:0.06em;">STEP 3</div>
+        <h3 style="font-size:1rem; margin-bottom:0.6rem;">Export</h3>
+        <p style="color:var(--dim); font-size:0.875rem; line-height:1.65;">Regulator-formatted PDF. Every section maps to CDSCO MDSW §5–8 or FDA SaMD guidance paragraphs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     REPORT PREVIEW SECTION
+══════════════════════════════════════ -->
+<section id="preview" class="section" style="border-top:1px solid var(--border);">
+  <div class="section-inner-sm">
+    <div class="reveal" style="text-align:center; margin-bottom:3rem;">
+      <div class="section-label">SAMPLE OUTPUT</div>
+      <h2 style="font-size: clamp(1.6rem, 3vw, 2.2rem); margin-bottom:0.75rem;">This is what the report looks like</h2>
+      <p style="color:var(--dim); font-size:0.95rem; line-height:1.65;">Real section numbers. Real CDSCO language. No reformatting needed before submission.</p>
+    </div>
+
+    <div class="report-preview-wrap reveal">
+      <div class="rp-header">
+        <div>
+          <div style="font-size:0.95rem; font-weight:600; color:var(--text);">CDSCO MDSW Compliance Report</div>
+          <div style="font-size:0.8rem; color:var(--muted); margin-top:2px;">DiagnosticAI v2.1 · Radiology Decision Support · Generated Sep 13, 2026</div>
+        </div>
+        <div style="display:flex; gap:0.75rem; align-items:center;">
+          <span style="padding:0.3rem 0.85rem; border-radius:999px; background:rgba(16,185,129,0.12); color:#10B981; font-size:0.78rem; font-weight:600; border:1px solid rgba(16,185,129,0.25);">COMPLIANT</span>
+          <a href="#waitlist" class="btn btn-outline" style="font-size:0.8rem; padding:0.4rem 0.9rem;">Download Sample</a>
+        </div>
+      </div>
+
+      <div class="rp-body">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1.25rem; margin-bottom:1.75rem;">
+
+          <!-- §5 Performance -->
+          <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:1.25rem;">
+            <div style="font-size:0.7rem; font-weight:700; color:var(--blue); letter-spacing:0.06em; margin-bottom:0.75rem;">§5 PERFORMANCE EVALUATION</div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+              <div style="display:flex; justify-content:space-between; font-size:0.85rem;"><span style="color:var(--dim);">Accuracy</span><span style="font-weight:600; color:var(--text);">0.914 <span style="color:var(--muted); font-weight:400; font-size:0.75rem;">[0.89–0.94]</span></span></div>
+              <div style="display:flex; justify-content:space-between; font-size:0.85rem;"><span style="color:var(--dim);">Sensitivity</span><span style="font-weight:600; color:var(--text);">0.847 <span style="color:var(--muted); font-weight:400; font-size:0.75rem;">[0.81–0.88]</span></span></div>
+              <div style="display:flex; justify-content:space-between; font-size:0.85rem;"><span style="color:var(--dim);">Specificity</span><span style="font-weight:600; color:var(--text);">0.931 <span style="color:var(--muted); font-weight:400; font-size:0.75rem;">[0.91–0.95]</span></span></div>
+              <div style="display:flex; justify-content:space-between; font-size:0.85rem;"><span style="color:var(--dim);">AUC-ROC</span><span style="font-weight:600; color:var(--text);">0.961 <span style="color:var(--muted); font-weight:400; font-size:0.75rem;">[0.94–0.98]</span></span></div>
+              <div style="display:flex; justify-content:space-between; font-size:0.85rem;"><span style="color:var(--dim);">Calibration ECE</span><span style="font-weight:600; color:#10B981;">0.047 ✓</span></div>
+            </div>
+          </div>
+
+          <!-- §6 Checks -->
+          <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:1.25rem;">
+            <div style="font-size:0.7rem; font-weight:700; color:var(--cyan); letter-spacing:0.06em; margin-bottom:0.75rem;">§6 CLINICAL EVALUATION</div>
+            <div style="display:flex; flex-direction:column; gap:0.55rem;">
+              <div style="display:flex; align-items:flex-start; gap:0.5rem; font-size:0.84rem; color:var(--dim);"><span style="color:#10B981; flex-shrink:0; margin-top:1px;">✓</span>Accuracy ≥ 0.70 threshold met</div>
+              <div style="display:flex; align-items:flex-start; gap:0.5rem; font-size:0.84rem; color:var(--dim);"><span style="color:#10B981; flex-shrink:0; margin-top:1px;">✓</span>Sensitivity ≥ 0.60 threshold met</div>
+              <div style="display:flex; align-items:flex-start; gap:0.5rem; font-size:0.84rem; color:var(--dim);"><span style="color:#10B981; flex-shrink:0; margin-top:1px;">✓</span>Bootstrap CIs within bounds</div>
+              <div style="display:flex; align-items:flex-start; gap:0.5rem; font-size:0.84rem; color:var(--dim);"><span style="color:#10B981; flex-shrink:0; margin-top:1px;">✓</span>Well-calibrated (ECE &lt; 0.10)</div>
+              <div style="display:flex; align-items:flex-start; gap:0.5rem; font-size:0.84rem; color:var(--dim);"><span style="color:#F59E0B; flex-shrink:0; margin-top:1px;">⚠</span>Post-market monitoring plan required</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Subgroup table -->
+        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:1.25rem; overflow-x:auto;">
+          <div style="font-size:0.7rem; font-weight:700; color:#10B981; letter-spacing:0.06em; margin-bottom:0.85rem;">SUBGROUP BIAS ANALYSIS — CDSCO §5.3</div>
+          <table style="width:100%; border-collapse:collapse; font-size:0.84rem;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border2);">
+                <th style="text-align:left; padding:0.4rem 0.75rem; color:var(--muted); font-weight:500; font-size:0.78rem;">Subgroup</th>
+                <th style="text-align:right; padding:0.4rem 0.75rem; color:var(--muted); font-weight:500; font-size:0.78rem;">n</th>
+                <th style="text-align:right; padding:0.4rem 0.75rem; color:var(--muted); font-weight:500; font-size:0.78rem;">Accuracy</th>
+                <th style="text-align:right; padding:0.4rem 0.75rem; color:var(--muted); font-weight:500; font-size:0.78rem;">Sensitivity</th>
+                <th style="text-align:right; padding:0.4rem 0.75rem; color:var(--muted); font-weight:500; font-size:0.78rem;">Specificity</th>
+                <th style="text-align:center; padding:0.4rem 0.75rem; color:var(--muted); font-weight:500; font-size:0.78rem;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:0.55rem 0.75rem; color:var(--text);">Age 18–35</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--dim);">68</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--text); font-weight:500;">0.921</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--text); font-weight:500;">0.863</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--text); font-weight:500;">0.942</td>
+                <td style="padding:0.55rem 0.75rem; text-align:center;"><span style="color:#10B981; font-size:0.78rem; font-weight:600;">Pass</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:0.55rem 0.75rem; color:var(--text);">Age 36–55</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--dim);">84</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--text); font-weight:500;">0.908</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--text); font-weight:500;">0.841</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--text); font-weight:500;">0.934</td>
+                <td style="padding:0.55rem 0.75rem; text-align:center;"><span style="color:#10B981; font-size:0.78rem; font-weight:600;">Pass</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:0.55rem 0.75rem; color:var(--text);">Age 55+</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--dim);">48</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--text); font-weight:500;">0.897</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--text); font-weight:500;">0.819</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--text); font-weight:500;">0.921</td>
+                <td style="padding:0.55rem 0.75rem; text-align:center;"><span style="color:#10B981; font-size:0.78rem; font-weight:600;">Pass</span></td>
+              </tr>
+              <tr>
+                <td style="padding:0.55rem 0.75rem; color:var(--text);">Female</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--dim);">92</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--text); font-weight:500;">0.916</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--text); font-weight:500;">0.852</td>
+                <td style="padding:0.55rem 0.75rem; text-align:right; color:var(--text); font-weight:500;">0.939</td>
+                <td style="padding:0.55rem 0.75rem; text-align:center;"><span style="color:#10B981; font-size:0.78rem; font-weight:600;">Pass</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="margin-top:0.75rem; font-size:0.78rem; color:var(--muted);">Max disparity across groups — Accuracy: 0.024 · Sensitivity: 0.044 · Both within CDSCO §5.3 tolerance.</div>
+        </div>
+
+        <div style="display:flex; justify-content:center; margin-top:1.75rem;">
+          <a href="#waitlist" class="btn btn-primary" style="padding:0.8rem 1.75rem;">Get early access to download full reports</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     FEATURES
+══════════════════════════════════════ -->
+<section id="features" class="section" style="border-top:1px solid var(--border);">
+  <div class="section-inner">
+    <div class="reveal" style="text-align:center; margin-bottom:3.5rem;">
+      <div class="section-label">WHAT YOU GET</div>
+      <h2 style="font-size: clamp(1.6rem, 3vw, 2.2rem); margin-bottom:0.75rem;">Everything a compliance dossier needs</h2>
+      <p style="color:var(--dim); font-size:0.95rem; max-width:32rem; margin:0 auto; line-height:1.65;">One Python package. Batteries included. No consultants.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="card" style="--icon-glow:rgba(59,123,246,0.4);">
+        <div class="card-icon" style="width:28px;height:28px;border-radius:7px;background:rgba(59,123,246,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#3B7BF6" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
+        </div>
+        <h3 style="font-size:0.9rem; margin-bottom:0.4rem;">Subgroup Bias Assessment</h3>
+        <p style="color:var(--dim); font-size:0.83rem; line-height:1.6;">Per-demographic accuracy, sensitivity, specificity with disparity reports across all sensitive features.</p>
+      </div>
+      <div class="card" style="--icon-glow:rgba(6,182,212,0.4);">
+        <div class="card-icon" style="width:28px;height:28px;border-radius:7px;background:rgba(6,182,212,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#06B6D4" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <h3 style="font-size:0.9rem; margin-bottom:0.4rem;">Bootstrap Confidence Intervals</h3>
+        <p style="color:var(--dim); font-size:0.83rem; line-height:1.6;">1000-resample percentile CIs on accuracy, F1, sensitivity, specificity, AUC. Regulators require error bounds.</p>
+      </div>
+      <div class="card" style="--icon-glow:rgba(129,140,248,0.4);">
+        <div class="card-icon" style="width:28px;height:28px;border-radius:7px;background:rgba(129,140,248,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#818CF8" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        </div>
+        <h3 style="font-size:0.9rem; margin-bottom:0.4rem;">Algorithm Change Protocol</h3>
+        <p style="color:var(--dim); font-size:0.83rem; line-height:1.6;">Track model versions and validate no regression after updates. FDA PDCP and CDSCO §7 compliant.</p>
+      </div>
+      <div class="card" style="--icon-glow:rgba(52,211,153,0.4);">
+        <div class="card-icon" style="width:28px;height:28px;border-radius:7px;background:rgba(52,211,153,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#34D399" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h3 style="font-size:0.9rem; margin-bottom:0.4rem;">Calibration Analysis</h3>
+        <p style="color:var(--dim); font-size:0.83rem; line-height:1.6;">ECE, MCE, and reliability diagram data. Know whether model probability outputs are trustworthy before deployment.</p>
+      </div>
+      <div class="card" style="--icon-glow:rgba(245,158,11,0.4);">
+        <div class="card-icon" style="width:28px;height:28px;border-radius:7px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#F59E0B" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <h3 style="font-size:0.9rem; margin-bottom:0.4rem;">Regulation-Mapped Reports</h3>
+        <p style="color:var(--dim); font-size:0.83rem; line-height:1.6;">CDSCO MDSW §5–8, EU AI Act Annex III, FDA SaMD — each section maps to actual guidance document paragraphs.</p>
+      </div>
+      <div class="card" style="--icon-glow:rgba(239,68,68,0.4);">
+        <div class="card-icon" style="width:28px;height:28px;border-radius:7px;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#EF4444" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        <h3 style="font-size:0.9rem; margin-bottom:0.4rem;">Zero Data Leaves Your System</h3>
+        <p style="color:var(--dim); font-size:0.83rem; line-height:1.6;">All validation runs locally. No model weights or patient data transmitted. PHI never leaves your machine.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     FOUNDER SECTION
+══════════════════════════════════════ -->
+<section class="section" style="border-top:1px solid var(--border);">
+  <div class="section-inner-sm">
+    <div class="reveal" style="text-align:center; margin-bottom:2.5rem;">
+      <div class="section-label">THE BUILDER</div>
+      <h2 style="font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom:0.6rem;">Built by someone who felt this pain firsthand</h2>
+    </div>
+
+    <div class="founder-wrap reveal">
+      <div class="avatar" aria-label="Abhay Sachan" style="font-size:1.1rem; letter-spacing:-0.03em;">AS</div>
+      <div style="flex:1; min-width:0;">
+        <blockquote style="font-size:1.05rem; line-height:1.7; color:var(--text); margin:0 0 1.25rem; font-style:italic; font-weight:300;">
+          "I spent weeks manually computing subgroup metrics and formatting CDSCO tables in a clinical AI project at SRHU.
+          There was no tool that did this automatically.
+          So I built one."
+        </blockquote>
+        <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+          <div>
+            <div style="font-weight:600; font-size:0.95rem; color:var(--text);">Abhay Sachan</div>
+            <div style="font-size:0.82rem; color:var(--muted); margin-top:2px;">AI/ML Researcher · Swami Rama Himalayan University</div>
+          </div>
+          <a href="https://github.com/abhaysachan007" target="_blank" rel="noopener"
+            style="display:inline-flex; align-items:center; gap:0.4rem; font-size:0.82rem; color:var(--dim); text-decoration:none; border:1px solid var(--border2); border-radius:6px; padding:0.3rem 0.7rem; transition:border-color .2s,color .2s;"
+            onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--text)'"
+            onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--dim)'">
+            <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            abhaysachan007
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     CODE DEMO
+══════════════════════════════════════ -->
+<section class="section" style="border-top:1px solid var(--border);">
+  <div class="section-inner">
+    <div class="reveal" style="text-align:center; margin-bottom:3.5rem;">
+      <div class="section-label">BEFORE VS AFTER</div>
+      <h2 style="font-size: clamp(1.6rem, 3vw, 2.2rem); margin-bottom:0.75rem;">The old way vs the Valiron way</h2>
+      <p style="color:var(--dim); font-size:0.95rem; line-height:1.65;">Manual compliance work takes 3–6 months. Valiron takes one function call.</p>
+    </div>
+
+    <div class="reveal" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:1.25rem;">
+      <!-- Before -->
+      <div style="background:#09090F; border:1px solid var(--border); border-radius:10px; overflow:hidden;">
+        <div style="background:var(--surface); border-bottom:1px solid var(--border); padding:0.6rem 1rem; display:flex; align-items:center; gap:0.4rem;">
+          <span style="width:9px;height:9px;border-radius:50%;background:#EF4444;"></span>
+          <span style="width:9px;height:9px;border-radius:50%;background:#F59E0B;"></span>
+          <span style="width:9px;height:9px;border-radius:50%;background:#10B981;"></span>
+          <span class="mono" style="font-size:0.7rem;color:var(--muted);margin-left:0.4rem;">compliance_work.ipynb — 847 lines</span>
+        </div>
+        <div class="mono" style="padding:1.25rem; font-size:12px; line-height:1.85; color:var(--muted);">
+          <span style="color:var(--muted);"># TODO: compute sensitivity per subgroup</span><br/>
+          <span style="color:var(--border2);">conf_mat_age_18_35 = ...</span><br/>
+          <span style="color:var(--border2);">conf_mat_age_36_55 = ...</span><br/>
+          <span style="color:var(--border2);">conf_mat_age_55p&nbsp;&nbsp; = ...</span><br/>
+          <span style="color:var(--muted);"># copy-paste 6 more times...</span><br/>
+          <br/>
+          <span style="color:var(--muted);"># Bootstrap CIs (hand-rolled, 80 lines)</span><br/>
+          <span style="color:var(--border2);">ci_results = []</span><br/>
+          <span style="color:var(--border2);">for i in range(1000):</span><br/>
+          <span style="color:var(--border2);">&nbsp;&nbsp;idx = np.random.choice(...)</span><br/>
+          <span style="color:var(--muted);">&nbsp;&nbsp;# 78 more lines</span><br/>
+          <br/>
+          <span style="color:#2A2A40; font-style:italic;"># Consultant fee: ₹8,40,000</span><br/>
+          <span style="color:#2A2A40; font-style:italic;"># Timeline: 4 months</span>
+        </div>
+      </div>
+
+      <!-- After -->
+      <div style="background:#09090F; border:1px solid rgba(6,182,212,0.25); border-radius:10px; overflow:hidden;">
+        <div style="background:var(--surface); border-bottom:1px solid var(--border); padding:0.6rem 1rem; display:flex; align-items:center; gap:0.4rem;">
+          <span style="width:9px;height:9px;border-radius:50%;background:#EF4444;"></span>
+          <span style="width:9px;height:9px;border-radius:50%;background:#F59E0B;"></span>
+          <span style="width:9px;height:9px;border-radius:50%;background:#10B981;"></span>
+          <span class="mono" style="font-size:0.7rem;color:var(--muted);margin-left:0.4rem;">run.py — 22 lines</span>
+        </div>
+        <div id="after-terminal" class="mono" style="padding:1.25rem; font-size:12px; line-height:1.85;">
+          <div class="type-line"><span class="t-im">import</span> <span class="t-pl">valiron</span></div>
+          <div class="type-line">&nbsp;</div>
+          <div class="type-line"><span class="t-pl">result </span><span class="t-kw">=</span><span class="t-pl"> valiron.</span><span class="t-fn">evaluate</span><span class="t-pl">(</span></div>
+          <div class="type-line"><span class="t-pl">&nbsp;&nbsp;model, X_test, y_test,</span></div>
+          <div class="type-line"><span class="t-pl">&nbsp;&nbsp;regulation</span><span class="t-kw">=</span><span class="t-str">"cdsco_mdsw"</span><span class="t-pl">,</span></div>
+          <div class="type-line"><span class="t-pl">&nbsp;&nbsp;sensitive_features</span><span class="t-kw">=</span><span class="t-pl">[</span><span class="t-str">"age_group"</span><span class="t-pl">],</span></div>
+          <div class="type-line"><span class="t-pl">)</span></div>
+          <div class="type-line"><span class="t-pl">valiron.</span><span class="t-fn">report</span><span class="t-pl">(result, </span><span class="t-str">"pdf"</span><span class="t-pl">)</span></div>
+          <div class="type-line">&nbsp;</div>
+          <div class="type-line"><span class="t-ok">✓</span><span class="t-pl"> Sensitivity: 0.847  [CI 0.81–0.88]</span></div>
+          <div class="type-line"><span class="t-ok">✓</span><span class="t-pl"> Subgroups: 3, max disparity 0.044</span></div>
+          <div class="type-line"><span class="t-ok">✓</span><span class="t-pl"> Calibration: ECE 0.047 — well-calibrated</span></div>
+          <div class="type-line"><span class="t-ok">✓</span><span class="t-pl"> Report: cdsco_report.pdf  (4.2s)</span></div>
+          <div class="type-line">&nbsp;</div>
+          <div class="type-line"><span style="color:#10B981; font-size:11px;"># Cost: ₹0 · Timeline: minutes</span><span class="code-cursor"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     FAQ
+══════════════════════════════════════ -->
+<section class="section" style="border-top:1px solid var(--border);">
+  <div class="section-inner-sm">
+    <div style="text-align:center; margin-bottom:3rem;">
+      <div class="section-label">FAQ</div>
+      <h2 style="font-size: clamp(1.6rem, 3vw, 2.2rem); margin-bottom:0.6rem;">Common questions</h2>
+    </div>
+
+    <div class="faq-wrap">
+      <div class="faq-item">
+        <button class="faq-btn" aria-expanded="false" onclick="toggleFaq(this)">
+          <span>Is this a SaaS? Do I need to upload my model?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-body">
+          <p>No. Valiron runs entirely on your infrastructure. No model weights or patient data ever leave your system. All validation, bias analysis, and report generation happen locally on your machine.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-btn" aria-expanded="false" onclick="toggleFaq(this)">
+          <span>Which regulations does it cover?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-body">
+          <p>CDSCO MDSW (India), EU AI Act Annex III, FDA AI/ML SaMD, and RBI ML Model Risk — with more coming. Each regulation maps to the actual section numbers and thresholds from the official guidance documents.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-btn" aria-expanded="false" onclick="toggleFaq(this)">
+          <span>Is it really free?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-body">
+          <p>The open source library is MIT licensed and always free. A hosted platform with monitoring and audit trail storage is coming — early access users get priority and discounted pricing.</p>
+        </div>
+      </div>
+      <div class="faq-item" style="border-bottom:none;">
+        <button class="faq-btn" aria-expanded="false" onclick="toggleFaq(this)">
+          <span>What models does it support?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-body">
+          <p>scikit-learn, PyTorch, ONNX, and any model that outputs predictions as numpy arrays. If your model can return <code style="font-family:monospace;font-size:0.85em;color:var(--cyan);">y_pred</code> and <code style="font-family:monospace;font-size:0.85em;color:var(--cyan);">y_prob</code>, Valiron works with it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     WAITLIST
+══════════════════════════════════════ -->
+<section id="waitlist" class="section" style="border-top:1px solid var(--border);">
+  <div class="section-inner-sm reveal" style="text-align:center;">
+
+    <div class="section-label">EARLY ACCESS</div>
+    <h2 style="font-size: clamp(1.6rem, 3vw, 2.2rem); margin-bottom:0.75rem;">Get early access + a free CDSCO compliance guide</h2>
+    <p style="color:var(--dim); font-size:0.95rem; margin: 0 auto 0.75rem; line-height:1.65; max-width:32rem;">
+      Sign up and we'll send you a step-by-step CDSCO MDSW §5–8 compliance checklist — the exact document structure regulators expect.
+    </p>
+    <p style="color:var(--cyan); font-size:0.85rem; font-weight:500; margin-bottom:2.5rem;">Worth ₹0. Yours free. No credit card.</p>
+
+    <form action="https://formspree.io/f/YOUR_ID" method="POST" id="waitlist-form" novalidate
+      style="display:flex; flex-direction:column; gap:0.75rem; max-width:26rem; margin:0 auto;">
+      <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+        <input
+          type="email" name="email" id="email-input"
+          class="wl-input" placeholder="you@company.com"
+          required autocomplete="email" aria-label="Email address"
+          style="flex:1; min-width:0;"
+        />
+        <button type="submit" class="btn btn-primary" style="flex-shrink:0; padding:0.75rem 1.25rem;">Join Waitlist</button>
+      </div>
+      <p id="form-error" role="alert" aria-live="assertive" style="color:#EF4444; font-size:0.82rem; display:none; text-align:left; margin:0;">Please enter a valid email address.</p>
+      <p id="form-success" role="status" aria-live="polite" style="color:#10B981; font-size:0.85rem; display:none; margin:0;">You're on the list. Checklist coming your way.</p>
+    </form>
+
+
+  </div>
+</section>
+
+</main>
+
+
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
+<footer style="border-top:1px solid var(--border); padding:1.75rem 1.5rem;">
+  <div class="section-inner" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+    <span style="font-size:0.84rem; color:var(--muted);">Valiron © 2026</span>
+    <nav aria-label="Footer" style="display:flex; gap:1.5rem; align-items:center;">
+      <a href="https://github.com/abhaysachan007/valiron" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+      <a href="https://linkedin.com/in/abhaysachan" target="_blank" rel="noopener" class="footer-link">LinkedIn</a>
+      <a href="https://pypi.org/project/valiron/" target="_blank" rel="noopener" class="footer-link">PyPI</a>
+      <a href="https://valiron.ai" class="footer-link">valiron.ai</a>
+    </nav>
+  </div>
+</footer>
+
+
+<script>
+  // ── Nav scroll shadow ──
+  const navWrap = document.querySelector('.nav-wrap');
+  window.addEventListener('scroll', () => {
+    navWrap.classList.toggle('scrolled', window.scrollY > 50);
+  }, { passive: true });
+
+  // ── Typing animation (After terminal) ──
+  const lines = document.querySelectorAll('#after-terminal .type-line');
+  lines.forEach((line, i) => {
+    setTimeout(() => line.classList.add('show'), 120 * i);
+  });
+
+  // ── FAQ accordion ──
+  function toggleFaq(btn) {
+    const body = btn.nextElementSibling;
+    const icon = btn.querySelector('.faq-icon');
+    const isOpen = body.classList.contains('open');
+    // close all
+    document.querySelectorAll('.faq-body.open').forEach(b => b.classList.remove('open'));
+    document.querySelectorAll('.faq-btn[aria-expanded="true"]').forEach(b => {
+      b.setAttribute('aria-expanded', 'false');
+      b.querySelector('.faq-icon').textContent = '+';
+    });
+    if (!isOpen) {
+      body.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+      icon.textContent = '×';
+    }
+  }
+
+  // ── Hamburger ──
+  const ham = document.getElementById('hamburger');
+  const mob = document.getElementById('mob-menu');
+  const h1 = document.getElementById('h1');
+  const h2 = document.getElementById('h2');
+  const h3 = document.getElementById('h3');
+
+  // Show hamburger on mobile via JS (avoids Tailwind md:hidden needing full config)
+  function updateNav() {
+    if (window.innerWidth < 768) {
+      ham.style.display = 'flex';
+    } else {
+      ham.style.display = 'none';
+      mob.classList.remove('open');
+    }
+  }
+  updateNav();
+  window.addEventListener('resize', updateNav);
+
+  ham.addEventListener('click', () => {
+    const open = mob.classList.toggle('open');
+    ham.setAttribute('aria-expanded', String(open));
+    if (open) {
+      h1.style.transform = 'translateY(6.5px) rotate(45deg)';
+      h2.style.opacity = '0';
+      h3.style.transform = 'translateY(-6.5px) rotate(-45deg)';
+    } else {
+      h1.style.transform = h2.style.opacity = h3.style.transform = '';
+    }
+  });
+
+  mob.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      mob.classList.remove('open');
+      ham.setAttribute('aria-expanded', 'false');
+      h1.style.transform = h2.style.opacity = h3.style.transform = '';
+    });
+  });
+
+  // ── Hero layout: stack on mobile ──
+  function stackHero() {
+    const grid = document.querySelector('section > .section-inner > div[style*="grid-template-columns:1fr 1fr"]');
+    if (!grid) return;
+    if (window.innerWidth < 768) {
+      grid.style.gridTemplateColumns = '1fr';
+    } else {
+      grid.style.gridTemplateColumns = '1fr 1fr';
+    }
+  }
+  stackHero();
+  window.addEventListener('resize', stackHero);
+
+  // ── Waitlist form ──
+  const form = document.getElementById('waitlist-form');
+  const emailEl = document.getElementById('email-input');
+  const errEl = document.getElementById('form-error');
+  const okEl  = document.getElementById('form-success');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errEl.style.display = 'none';
+    okEl.style.display  = 'none';
+
+    if (!emailEl.validity.valid) {
+      errEl.textContent = 'Please enter a valid email address.';
+      errEl.style.display = 'block';
+      emailEl.focus();
+      return;
+    }
+
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Joining…';
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' },
+      });
+      if (res.ok) {
+        okEl.style.display = 'block';
+        form.reset();
+      } else {
+        errEl.textContent = 'Something went wrong. Try again.';
+        errEl.style.display = 'block';
+      }
+    } catch {
+      errEl.textContent = 'Network error. Please try again.';
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Join Waitlist';
+    }
+  });
+</script>
+
+</body>
+</html>
