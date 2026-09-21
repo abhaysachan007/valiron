@@ -3,6 +3,7 @@
 # Valiron
 
 [![PyPI version](https://img.shields.io/pypi/v/valiron.svg?color=blue)](https://pypi.org/project/valiron/)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/abhaysachan007/valiron/blob/main/colab_demo.ipynb)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://pypi.org/project/valiron/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Tests](https://github.com/abhaysachan007/valiron/actions/workflows/ci.yml/badge.svg)](https://github.com/abhaysachan007/valiron/actions/workflows/ci.yml)
