@@ -20,10 +20,7 @@
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/abhaysachan007/valiron/blob/main/colab_demo.ipynb)
 
-<!--
-demo.gif — shows terminal running valiron.evaluate() → CDSCO report in 4.2s
-Coming soon
--->
+![Demo](docs/demo.svg)
 
 </div>
 

@@ -40,3 +40,13 @@ Thumbs.db
 .env.local
 *.pem
 *.key
+
+# Dev/scratch files
+*.png
+*linkedin*
+HANDOFF.md
+valiron_demo.ipynb
+rf_v1_*
+.valiron/
+brag-output/
+"Demo Vedio.mp4"
